@@ -1,0 +1,6 @@
+"hello" = 3
+"test" = "hello, world"
+"space" = {
+    "val" = 12
+}
+"arr" = [-1234,-2,3,4,5]
