@@ -28,7 +28,7 @@ PRIVATE char* _next(char* buf) {
 }
 PRIVATE char* next1(char* buf) {
   char* p = _next(buf);
-  if (!(*p))
+  if (!(p))
     return 0;
   while (p[0] == '#') {
     p = strchr(p, '\n');
