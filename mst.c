@@ -69,7 +69,11 @@ PRIVATE char* next(char* buf) {
     return 0;
   }
   char *p1 = p;
-  while(*p != '#' && *p != ' ' && *p) {
+  int fg = 0;
+  while((*p != '#' && fg) && *p != ' ' && *p) {
+    if (*p == '\"') {
+      fg = !fg;
+    }
     p++;
   }
   if(*p != '#') {
