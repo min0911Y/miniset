@@ -3,7 +3,9 @@
 #define PRIVATE static
 #define PUBLIC 
 #define MST_API
+#include <stddef.h>
 #include <stdint.h>
+//#define MEM_LEAK_CHK
 struct ListCtl {
   struct List* start;
   struct List* end;
@@ -21,7 +23,9 @@ typedef struct {
   char* tok;
   TOKEN_TYPE t;
 } TOKEN;
-
+typedef enum {
+  STRING_OP_ERROR=1,UNKNOW_TOKEN,ERROR_TOKEN,SYNTAX_ERROR
+} ERR_TYPE;
 typedef enum {
     INTEGER,ARRAY,SPAC,STR
 } VAR_TYPE;
@@ -80,4 +84,6 @@ PUBLIC MST_API int MST_Array_get_integer(Array_data *ad);
 PUBLIC MST_API char *MST_Array_get_str(Array_data *ad);
 PUBLIC MST_API SPACE *MST_Array_get_space(Array_data *ad);
 PUBLIC MST_API Array *MST_Array_get_array(Array_data *ad);
+PUBLIC MST_API void MST_FreeObj(MST_Object* mst);
+PUBLIC MST_API const char *MST_strerror(MST_Object *mst);
 #endif
