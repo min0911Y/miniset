@@ -1,8 +1,16 @@
 // 链表
+#include <stdio.h>
 #include <stdlib.h>
 #include "mst.h"
+#ifdef MEM_LEAK_CHK
+void *Malloc(size_t size);
+void Free(void *ptr);
+#define page_kmalloc Malloc
+#define page_kfree(p, sz) Free((p))
+#else
 #define page_kmalloc malloc
-#define page_kfree(p,sz) free((p))
+#define page_kfree(p, sz) free((p))
+#endif
 void AddVal(uintptr_t val, struct List* Obj) {
   while (Obj->next != NULL)
     Obj = Obj->next;
@@ -53,7 +61,7 @@ void DeleteVal(size_t count, struct List* Obj) {
     prev->next = next;
     next->prev = prev;
   }
-  page_kfree((int)Will_Free, sizeof(struct List));
+  page_kfree((size_t)Will_Free, sizeof(struct List));
   Obj->ctl->all--;
 }
 struct List* NewList() {
@@ -76,15 +84,18 @@ void Change(size_t count, struct List* Obj, uintptr_t val) {
     AddVal(val, Obj);
   }
 }
-//获取尾节点的count
+// 获取尾节点的count
 int GetLastCount(struct List* Obj) {
   return Obj->ctl->all;
 }
 void DeleteList(struct List* Obj) {
   Obj = Obj->ctl->start;
-  page_kfree((int)Obj->ctl, sizeof(struct ListCtl));
-  for (; Obj->next != (struct List*)NULL; Obj = Obj->next) {
-    page_kfree((int)Obj, sizeof(struct List));
+  page_kfree((size_t)Obj->ctl, sizeof(struct ListCtl));
+  for (; Obj != (struct List*)NULL;) {
+    //printf("Will free: %llx\n", Obj);
+    struct List* tmp = Obj;
+    Obj = Obj->next;
+    page_kfree((size_t)tmp, sizeof(struct List));
   }
   return;
 }
