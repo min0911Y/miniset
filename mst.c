@@ -273,6 +273,7 @@ PRIVATE void auto_put_token(char* p1, MST_Object* mst) {
       case '\r':
       case '\n':
       case ',':
+      case '\t':
         break;
       default: {
         if (isdigit(p1[i]) || p1[i] == '-') {
