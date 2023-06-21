@@ -31,6 +31,14 @@ int main(int argc, char const* argv[]) {
     Array_data* ad = MST_Array_Get(arr, i);
     printf("arr[%d]=%d\n", i, MST_Array_get_integer(ad));
   }
+  MST_add_var_to_space(m,MST_GetRootSpace(m),MST_var_make_integer("test_make",13123));
+  MST_add_var_to_space(m,MST_GetRootSpace(m),MST_var_make_string("test_makestring","test!!!!"));
+  MST_add_empty_array_to_space(m,MST_GetRootSpace(m),"test_array");
+  MST_add_empty_space_to_space(m,MST_GetRootSpace(m),"test_space");
+  MST_add_var_to_space(m,MST_Space_GetSpace(MST_GetVar("test_space",MST_GetRootSpace(m))),MST_var_make_integer("test_make",13123));
+  MST_add_var_to_space(m,MST_Space_GetSpace(MST_GetVar("test_space",MST_GetRootSpace(m))),MST_var_make_string("test_makestring","test!!!!"));
+  MST_add_data_to_array(m,MST_Space_GetArray(MST_GetVar("test_array",MST_GetRootSpace(m))),MST_arr_dat_make_integer(13123));
+  MST_add_data_to_array(m,MST_Space_GetArray(MST_GetVar("test_array",MST_GetRootSpace(m))),MST_arr_dat_make_string("test!!!!"));
   char *s1 = MST_build_to_string(m);
   printf("%s\n",s1);
   free(s1);

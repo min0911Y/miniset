@@ -46,7 +46,10 @@ void mstr_add_char(mstr* ms, char c) {
     ms->buf[ms->len + 1] = '\0';
     ms->len++;
 }
-
+void mstr_backspace(mstr* ms) {
+    ms->len--;
+    ms->buf[ms->len] = 0;
+}
 char* mstr_get(mstr* ms) {
     return ms->buf;
 }

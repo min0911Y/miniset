@@ -3,13 +3,59 @@
 #include <string.h>
 #include "mst.h"
 #include "mstr.h"
-PUBLIC MST_API Var MST_var_make_integer(char* name, int val) {}
-PUBLIC MST_API Var MST_var_make_string(char* name, char* String) {}
+#ifdef MEM_LEAK_CHK
+void* Malloc(size_t size);
+void Free(void* ptr);
+#define malloc Malloc
+#define free Free
+#endif
+PRIVATE void put_token(char* buf, TOKEN_TYPE t, MST_Object* mst) {
+  TOKEN* tok = malloc(sizeof(TOKEN));
+  tok->t = t;
+  tok->tok = buf;
+  AddVal((uintptr_t)tok, mst->token);
+}
+PUBLIC MST_API Var MST_var_make_integer(char* name, int val) {
+  Var r;
+  char* s = (char*)malloc(strlen(name) + 1);
+  strcpy(s, name);
+  r.name = s;
+  r.vt = INTEGER;
+  r.obj = malloc(sizeof(Integer));
+  ((Integer*)(r.obj))->num = val;
+  return r;
+}
+PUBLIC MST_API Var MST_var_make_string(char* name, char* ss) {
+  Var r;
+  char* s = (char*)malloc(strlen(name) + 1);
+  strcpy(s, name);
+  r.name = s;
+  r.vt = STR;
+  r.obj = malloc(sizeof(String));
+  char* s1 = (char*)malloc(strlen(ss) + 1);
+  strcpy(s1, ss);
+  ((String*)(r.obj))->str = s1;
+  return r;
+}
 
-PUBLIC MST_API Array_data MST_arr_dat_make_integer(int val) {}
-PUBLIC MST_API Array_data MST_arr_dat_make_string(char* String) {}
+PUBLIC MST_API Array_data MST_arr_dat_make_integer(int val) {
+  Array_data r;
+  r.vt = INTEGER;
+  r.obj = malloc(sizeof(Integer));
+  ((Integer*)(r.obj))->num = val;
+  return r;
+}
+PUBLIC MST_API Array_data MST_arr_dat_make_string(char* ss) {
+  Array_data r;
+  r.vt = STR;
+  r.obj = malloc(sizeof(String));
+  char* s1 = (char*)malloc(strlen(ss) + 1);
+  strcpy(s1, ss);
+  ((String*)(r.obj))->str = s1;
+  return r;
+}
 
-// TODO:我们需要将name（char *）的数据送到tokan这个链表里面，因为我们需要Free
+// TODO:我们需要将name（char *）的数据送到token这个链表里面，因为我们需要Free
 PUBLIC MST_API void MST_add_data_to_array(MST_Object* mst_obj,
                                           Array* arr,
                                           Array_data ad) {
@@ -17,6 +63,13 @@ PUBLIC MST_API void MST_add_data_to_array(MST_Object* mst_obj,
     mst_obj->err = WRONG_TYPE_TO_ADD;
     return;
   }
+  Array_data* v = (Array_data*)malloc(sizeof(Array_data));
+  memcpy(v, &ad, sizeof(Array_data));
+  if (v->vt == STR) {
+    String* s = (String*)v->obj;
+    put_token(s->str, STRING, mst_obj);
+  }
+  AddVal((uintptr_t)v, arr->the_array);
 }
 PUBLIC MST_API void MST_add_var_to_space(MST_Object* mst_obj,
                                          SPACE* sp,
@@ -25,17 +78,57 @@ PUBLIC MST_API void MST_add_var_to_space(MST_Object* mst_obj,
     mst_obj->err = WRONG_TYPE_TO_ADD;
     return;
   }
+  put_token(var.name, WORD, mst_obj);
+  Var* v = (Var*)malloc(sizeof(Var));
+  memcpy(v, &var, sizeof(Var));
+  if (v->vt == STR) {
+    String* s = (String*)v->obj;
+    put_token(s->str, STRING, mst_obj);
+  }
+  AddVal((uintptr_t)v, sp->the_space);
 }
 PUBLIC MST_API void MST_add_empty_space_to_space(MST_Object* mst_obj,
                                                  SPACE* sp,
-                                                 char* name) {}
+                                                 char* name) {
+  char* s = (char*)malloc(strlen(name) + 1);
+  strcpy(s, name);
+  Var* v = (Var*)malloc(sizeof(Var));
+  v->name = s;
+  v->vt = SPAC;
+  v->obj = malloc(sizeof(SPACE));
+  ((SPACE*)v->obj)->the_space = NewList();
+  put_token(s, WORD, mst_obj);
+  AddVal((uintptr_t)v, sp->the_space);
+}
 PUBLIC MST_API void MST_add_empty_array_to_space(MST_Object* mst_obj,
                                                  SPACE* sp,
-                                                 char* name) {}
+                                                 char* name) {
+  char* s = (char*)malloc(strlen(name) + 1);
+  strcpy(s, name);
+  Var* v = (Var*)malloc(sizeof(Var));
+  v->name = s;
+  v->vt = ARRAY;
+  v->obj = malloc(sizeof(Array));
+  ((Array*)v->obj)->the_array = NewList();
+  put_token(s, WORD, mst_obj);
+  AddVal((uintptr_t)v, sp->the_space);
+}
 PUBLIC MST_API void MST_add_empty_space_to_array(MST_Object* mst_obj,
-                                                 Array* arr) {}
+                                                 Array* arr) {
+  Array_data* v = (Array_data*)malloc(sizeof(Array_data));
+  v->vt = SPAC;
+  v->obj = malloc(sizeof(SPACE));
+  ((SPACE*)v->obj)->the_space = NewList();
+  AddVal((uintptr_t)v, arr->the_array);
+}
 PUBLIC MST_API void MST_add_empty_array_to_array(MST_Object* mst_obj,
-                                                 Array* arr) {}
+                                                 Array* arr) {
+  Array_data* v = (Array_data*)malloc(sizeof(Array_data));
+  v->vt = ARRAY;
+  v->obj = malloc(sizeof(Array));
+  ((Array*)v->obj)->the_array = NewList();
+  AddVal((uintptr_t)v, arr->the_array);
+}
 
 PRIVATE void mst_add_str(mstr* result, char* str, int space_no) {
   for (int i = 0; i < space_no; i++) {
@@ -48,8 +141,10 @@ PRIVATE void build_array(mstr* result,
                          Array* arr,
                          int spaces_no_for_start,
                          int spaces_no) {
+  int flag = 0;
   mst_add_str(result, "[", spaces_no_for_start);
   for (int i = 0; MST_Array_Get(arr, i) != NULL; i++) {
+    flag = 1;
     // printf(".\n");
     Array_data* ad = (Array_data*)MST_Array_Get(arr, i);
     switch (ad->vt) {
@@ -78,9 +173,10 @@ PRIVATE void build_array(mstr* result,
       default:
         break;
     }
-    if (MST_Array_Get(arr, i + 1) != NULL) {
-      mstr_add_char(result, ',');
-    }
+    mstr_add_char(result, ',');
+  }
+  if (flag) {
+    mstr_backspace(result);
   }
   mstr_add_char(result, ']');
 }
@@ -127,8 +223,14 @@ PUBLIC MST_API char* MST_build_to_string(MST_Object* mst_obj) {
   mstr* ms = mstr_init();
   // printf("mstr init ok!\n");
   build_space(ms, MST_GetRootSpace(mst_obj), 0);
+  mstr_backspace(ms);
   // printf("build_space!\n");
   char* s = (char*)malloc(strlen(mstr_get(ms)) + 1);
+#ifdef MEM_LEAK_CHK
+  // s这个指针需要用户自己去释放，因此不计算在malloc次数中
+  extern int _malloc_times;
+  _malloc_times--;
+#endif
   strcpy(s, mstr_get(ms));
   mstr_free(ms);
   return s;

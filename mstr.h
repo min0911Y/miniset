@@ -11,5 +11,5 @@ void mstr_add_str(mstr* ms, char* str);
 void mstr_add_char(mstr* ms, char c);
 char* mstr_get(mstr* ms);
 void mstr_free(mstr* ms);
-
+void mstr_backspace(mstr* ms);
 #endif
