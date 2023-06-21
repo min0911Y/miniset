@@ -83,7 +83,6 @@ struct List* NewList(void);
 void Change(size_t count, struct List* Obj, uintptr_t val);
 int GetLastCount(struct List* Obj);
 void DeleteList(struct List* Obj);
-#define MST_GetRootSpace(m) (m)->root_space
 PUBLIC MST_API MST_Object* Init_MstObj(char* string);
 PUBLIC MST_API Var* MST_GetVar(char* name, SPACE* space);
 PUBLIC MST_API int MST_Space_GetInteger(Var* var);
@@ -96,6 +95,7 @@ PUBLIC MST_API char* MST_Array_get_str(Array_data* ad);
 PUBLIC MST_API SPACE* MST_Array_get_space(Array_data* ad);
 PUBLIC MST_API Array* MST_Array_get_array(Array_data* ad);
 PUBLIC MST_API void MST_FreeObj(MST_Object* mst);
+
 PUBLIC MST_API const char* MST_strerror(MST_Object* mst);
 PUBLIC MST_API void MST_add_data_to_array(MST_Object* mst_obj,
                                           Array* arr,
@@ -118,4 +118,13 @@ PUBLIC MST_API void MST_add_empty_array_to_space(MST_Object* mst_obj,
 PUBLIC MST_API void MST_add_empty_space_to_space(MST_Object* mst_obj,
                                                  SPACE* sp,
                                                  char* name);
+
+#define MST_GetRootSpace(m) (m)->root_space
+// MST_get_space_in_space
+#define MST_get_space_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetSpace(MST_GetVar((name),(SPACE))) : NULL
+#define MST_get_space_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_space(MST_Array_Get((arr),(idx))) : NULL   // MST_get_space_in_array
+#define MST_get_integer_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetInteger(MST_GetVar((name),(SPACE))) : -1 // MST_get_integer_in_space
+#define MST_get_integer_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_integer(MST_Array_Get((arr),(idx))) : -1 // MST_get_integer_in_array
+#define MST_get_string_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetStr(MST_GetVar((name),(SPACE))) : NULL // MST_get_string_in_space
+#define MST_get_string_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_str(MST_Array_Get((arr),(idx))) : NULL // MST_get_string_in_array
 #endif
