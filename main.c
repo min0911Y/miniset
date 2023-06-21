@@ -31,6 +31,9 @@ int main(int argc, char const* argv[]) {
     Array_data* ad = MST_Array_Get(arr, i);
     printf("arr[%d]=%d\n", i, MST_Array_get_integer(ad));
   }
+  char *s1 = MST_build_to_string(m);
+  printf("%s\n",s1);
+  free(s1);
   MST_FreeObj(m);
 #endif
   return 0;

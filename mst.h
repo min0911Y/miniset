@@ -24,7 +24,7 @@ typedef struct {
   TOKEN_TYPE t;
 } TOKEN;
 typedef enum {
-  STRING_OP_ERROR=1,UNKNOW_TOKEN,ERROR_TOKEN,SYNTAX_ERROR
+  STRING_OP_ERROR=1,UNKNOW_TOKEN,ERROR_TOKEN,SYNTAX_ERROR,WRONG_TYPE_TO_ADD
 } ERR_TYPE;
 typedef enum {
     INTEGER,ARRAY,SPAC,STR
@@ -86,4 +86,7 @@ PUBLIC MST_API SPACE *MST_Array_get_space(Array_data *ad);
 PUBLIC MST_API Array *MST_Array_get_array(Array_data *ad);
 PUBLIC MST_API void MST_FreeObj(MST_Object* mst);
 PUBLIC MST_API const char *MST_strerror(MST_Object *mst);
+
+
+PUBLIC MST_API char* MST_build_to_string(MST_Object* mst_obj);
 #endif
