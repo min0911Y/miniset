@@ -219,6 +219,23 @@ PRIVATE void build_space(mstr* result, SPACE* space, int spaces_no) {
     mstr_add_char(result, '\n');
   }
 }
+PUBLIC MST_API void MST_change_var(MST_Object* mst_obj, Var v, Var* v1) {
+  free(v1->obj);
+  put_token(v.name, WORD, mst_obj);
+  memcpy(v1, &v, sizeof(Var));
+  if (v1->vt == STR) {
+    String* s = (String*)v1->obj;
+    put_token(s->str, STRING, mst_obj);
+  }
+}
+PUBLIC MST_API void MST_change_arr(MST_Object* mst_obj, Array_data v, Array_data* v1) {
+  free(v1->obj);
+  memcpy(v1, &v, sizeof(Var));
+  if (v1->vt == STR) {
+    String* s = (String*)v1->obj;
+    put_token(s->str, STRING, mst_obj);
+  }
+}
 PUBLIC MST_API char* MST_build_to_string(MST_Object* mst_obj) {
   mstr* ms = mstr_init();
   // printf("mstr init ok!\n");
