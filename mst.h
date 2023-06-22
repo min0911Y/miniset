@@ -121,10 +121,10 @@ PUBLIC MST_API void MST_add_empty_space_to_space(MST_Object* mst_obj,
 
 #define MST_GetRootSpace(m) (m)->root_space
 // MST_get_space_in_space
-#define MST_get_space_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetSpace(MST_GetVar((name),(SPACE))) : NULL
+#define MST_get_space_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetSpace(MST_GetVar((name),(space))) : NULL
 #define MST_get_space_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_space(MST_Array_Get((arr),(idx))) : NULL   // MST_get_space_in_array
-#define MST_get_integer_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetInteger(MST_GetVar((name),(SPACE))) : -1 // MST_get_integer_in_space
+#define MST_get_integer_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetInteger(MST_GetVar((name),(space))) : -1 // MST_get_integer_in_space
 #define MST_get_integer_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_integer(MST_Array_Get((arr),(idx))) : -1 // MST_get_integer_in_array
-#define MST_get_string_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetStr(MST_GetVar((name),(SPACE))) : NULL // MST_get_string_in_space
+#define MST_get_string_in_space(m,name,space) MST_GetVar((name),(space)) ? MST_Space_GetStr(MST_GetVar((name),(space))) : NULL // MST_get_string_in_space
 #define MST_get_string_in_array(m,idx,arr) MST_Array_Get((arr),(idx)) ? MST_Array_get_str(MST_Array_Get((arr),(idx))) : NULL // MST_get_string_in_array
 #endif
