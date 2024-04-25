@@ -1,17 +1,8 @@
 // 链表
-#include <stdio.h>
-#include <stdlib.h>
 #include "mst.h"
-#ifdef MEM_LEAK_CHK
-void *Malloc(size_t size);
-void Free(void *ptr);
-#define page_kmalloc Malloc
-#define page_kfree(p, sz) Free((p))
-#else
 #define page_kmalloc malloc
 #define page_kfree(p, sz) free((p))
-#endif
-void AddVal(uintptr_t val, struct List* Obj) {
+List *list_add_val(uintptr_t val, struct List* Obj) {
   while (Obj->next != NULL)
     Obj = Obj->next;
   Obj = Obj->ctl->end;
@@ -23,11 +14,10 @@ void AddVal(uintptr_t val, struct List* Obj) {
   new->next = (List*)NULL;
   new->val = val;
   new->ctl->all++;
-  // printk("Address:%08x Val:%08x Start:%08x
-  // Count:%d\n",new,val,Obj->ctl->start,GetLastCount(Obj->ctl->start));
+  return new;
 }
-struct List* FindForCount(size_t count, struct List* Obj) {
-  int count_last = GetLastCount(Obj);
+struct List* list_search_by_count(size_t count, struct List* Obj) {
+  int count_last = list_get_last_count(Obj);
   struct List *p = Obj, *q = Obj->ctl->end;
   if (count > count_last)
     return (List*)NULL;
@@ -41,8 +31,8 @@ struct List* FindForCount(size_t count, struct List* Obj) {
     q = q->prev;
   }
 }
-void DeleteVal(size_t count, struct List* Obj) {
-  struct List* Will_Free = FindForCount(count, Obj);
+void list_delete_by_count(size_t count, struct List* Obj) {
+  struct List* Will_Free = list_search_by_count(count, Obj);
   if (Will_Free == NULL) {
     // Not found!
     return;
@@ -52,19 +42,42 @@ void DeleteVal(size_t count, struct List* Obj) {
   }
   if (Will_Free->next == (List*)NULL) {
     // 是尾节点
-    struct List* prev = FindForCount(count - 1, Obj);
+    struct List* prev = Will_Free->prev;
     prev->next = (List*)NULL;
     prev->ctl->end = prev;
   } else {
-    struct List* prev = FindForCount(count - 1, Obj);
-    struct List* next = FindForCount(count + 1, Obj);
+    struct List* prev = Will_Free->prev;
+    struct List* next = Will_Free->next;
     prev->next = next;
     next->prev = prev;
   }
-  page_kfree((size_t)Will_Free, sizeof(struct List));
+  page_kfree((void *)Will_Free, sizeof(struct List));
   Obj->ctl->all--;
 }
-struct List* NewList() {
+void list_delete_child(struct List* need_to_free, struct List* Obj) {
+  if (need_to_free == NULL) {
+    // Not found!
+    return;
+  }
+  if (need_to_free->prev == NULL) {
+    return;
+  }
+  if (need_to_free->next == (List*)NULL) {
+    // 是尾节点
+    struct List* prev = need_to_free->prev;
+    prev->next = (List*)NULL;
+    prev->ctl->end = prev;
+  }
+  else {
+    struct List* prev = need_to_free->prev;
+    struct List* next = need_to_free->next;
+    prev->next = next;
+    next->prev = prev;
+  }
+  page_kfree((void *)need_to_free, sizeof(struct List));
+  Obj->ctl->all--;
+}
+struct List* list_new() {
   struct List* Obj = (struct List*)page_kmalloc(sizeof(struct List));
   struct ListCtl* ctl = (struct ListCtl*)page_kmalloc(sizeof(struct ListCtl));
   Obj->ctl = ctl;
@@ -76,26 +89,27 @@ struct List* NewList() {
   Obj->ctl->all = 0;
   return Obj;
 }
-void Change(size_t count, struct List* Obj, uintptr_t val) {
-  struct List* Will_Change = FindForCount(count + 1, Obj);
+void list_change_child_by_count(size_t count, struct List* Obj, uintptr_t val) {
+  struct List* Will_Change = list_search_by_count(count + 1, Obj);
   if (Will_Change != NULL) {
     Will_Change->val = val;
   } else {
-    AddVal(val, Obj);
+    list_add_val(val, Obj);
   }
 }
 // 获取尾节点的count
-int GetLastCount(struct List* Obj) {
+size_t list_get_last_count(struct List* Obj) {
+  if(!Obj) return -1; // error
   return Obj->ctl->all;
 }
-void DeleteList(struct List* Obj) {
+void list_delete(struct List* Obj) {
   Obj = Obj->ctl->start;
-  page_kfree((size_t)Obj->ctl, sizeof(struct ListCtl));
+  page_kfree((void *)Obj->ctl, sizeof(struct ListCtl));
   for (; Obj != (struct List*)NULL;) {
     //printf("Will free: %llx\n", Obj);
     struct List* tmp = Obj;
     Obj = Obj->next;
-    page_kfree((size_t)tmp, sizeof(struct List));
+    page_kfree((void *)tmp, sizeof(struct List));
   }
   return;
 }
