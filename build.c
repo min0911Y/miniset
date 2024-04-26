@@ -89,51 +89,57 @@ PUBLIC MST_API void MST_add_var_to_space(MST_Object* mst_obj,
   }
   v->this_list = list_add_val((uintptr_t) v, sp->the_space);
 }
-PUBLIC MST_API void MST_add_empty_space_to_space(MST_Object* mst_obj,SPACE* sp,char* name) {
-  char* s = (char*)malloc(strlen(name) + 1);
-  assert(s);
-  strcpy(s, name);
-  Var* v = (Var*)malloc(sizeof(Var));
-  assert(v);
-  v->name = s;
-  v->vt = VAR_SPACE;
-  v->obj = malloc(sizeof(SPACE));
-  assert(v->obj);
-  ((SPACE*)v->obj)->the_space = list_new();
-  put_token(s, TK_WORD, mst_obj);
-  v->this_list = list_add_val((uintptr_t) v, sp->the_space);
+PUBLIC MST_API Var* MST_add_empty_space_to_space(MST_Object* mst_obj, SPACE* sp,
+    char* name) {
+    char* s = (char*)malloc(strlen(name) + 1);
+    assert(s);
+    strcpy(s, name);
+    Var* v = (Var*)malloc(sizeof(Var));
+    assert(v);
+    v->name = s;
+    v->vt = VAR_SPACE;
+    v->obj = malloc(sizeof(SPACE));
+    assert(v->obj);
+    ((SPACE*)v->obj)->the_space = list_new();
+    put_token(s, TK_WORD, mst_obj);
+    v->this_list = list_add_val((uintptr_t)v, sp->the_space);
+    return v;
 }
-PUBLIC MST_API void MST_add_empty_array_to_space(MST_Object* mst_obj,SPACE* sp,char* name) {
-  char* s = (char*)malloc(strlen(name) + 1);
-  assert(s);
-  strcpy(s, name);
-  Var* v = (Var*)malloc(sizeof(Var));
-  assert(v);
-  v->name = s;
-  v->vt = VAR_ARRAY;
-  v->obj = malloc(sizeof(Array));
-  assert(v->obj);
-  ((Array*)v->obj)->the_array = list_new();
-  put_token(s, TK_WORD, mst_obj);
-  v->this_list = list_add_val((uintptr_t) v, sp->the_space);
+PUBLIC MST_API Var* MST_add_empty_array_to_space(MST_Object* mst_obj, SPACE* sp,
+    char* name) {
+    char* s = (char*)malloc(strlen(name) + 1);
+    assert(s);
+    strcpy(s, name);
+    Var* v = (Var*)malloc(sizeof(Var));
+    assert(v);
+    v->name = s;
+    v->vt = VAR_ARRAY;
+    v->obj = malloc(sizeof(Array));
+    assert(v->obj);
+    ((Array*)v->obj)->the_array = list_new();
+    put_token(s, TK_WORD, mst_obj);
+    v->this_list = list_add_val((uintptr_t)v, sp->the_space);
+    return v;
 }
-PUBLIC MST_API void MST_add_empty_space_to_array(Array* arr) {
-  Array_data* v = (Array_data*)malloc(sizeof(Array_data));
-  assert(v);
-  v->vt = VAR_SPACE;
-  v->obj = malloc(sizeof(SPACE));
-  assert(v->obj);
-  ((SPACE*)v->obj)->the_space = list_new();
-  v->this_list = list_add_val((uintptr_t) v, arr->the_array);
+PUBLIC MST_API Array_data* MST_add_empty_space_to_array(Array* arr) {
+    Array_data* v = (Array_data*)malloc(sizeof(Array_data));
+    assert(v);
+    v->vt = VAR_SPACE;
+    v->obj = malloc(sizeof(SPACE));
+    assert(v->obj);
+    ((SPACE*)v->obj)->the_space = list_new();
+    v->this_list = list_add_val((uintptr_t)v, arr->the_array);
+    return v;
 }
-PUBLIC MST_API void MST_add_empty_array_to_array(Array* arr) {
-  Array_data* v = (Array_data*)malloc(sizeof(Array_data));
-  assert(v);
-  v->vt = VAR_ARRAY;
-  v->obj = malloc(sizeof(Array));
-  assert(v->obj);
-  ((Array*)v->obj)->the_array = list_new();
-  v->this_list =  list_add_val((uintptr_t) v, arr->the_array);
+PUBLIC MST_API Array_data* MST_add_empty_array_to_array(Array* arr) {
+    Array_data* v = (Array_data*)malloc(sizeof(Array_data));
+    assert(v);
+    v->vt = VAR_ARRAY;
+    v->obj = malloc(sizeof(Array));
+    assert(v->obj);
+    ((Array*)v->obj)->the_array = list_new();
+    v->this_list = list_add_val((uintptr_t)v, arr->the_array);
+    return v;
 }
 
 PRIVATE void mst_add_str(mstr* result, char* str, int space_no) {
